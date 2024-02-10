@@ -197,6 +197,9 @@ class miner:
             bt.logging.debug("loading wandb")
             init_wandb(self)
 
+        self.config.axon.port = int(os.getenv("MINER_PORT"))
+        self.config.axon.external_ip = os.getenv("MINER_IP")
+
         # The axon handles request processing, allowing validators to send this process requests.
         self.axon = bt.axon(wallet=self.wallet, config=self.config)
         bt.logging.info(f"Axon {self.axon}")
