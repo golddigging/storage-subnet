@@ -130,13 +130,6 @@ class miner:
         bt.logging(config=self.config, logging_dir=self.config.miner.full_path)
         bt.logging.info(f"{self.config}")
 
-        try:
-            asyncio.run(check_environment(self.config.database.redis_conf_path))
-        except AssertionError as e:
-            bt.logging.warning(
-                f"Something is missing in your environment: {e}. Please check your configuration, use the README for help, and try again."
-            )
-
         bt.logging.info("miner.__init__()")
 
         # Init device.
@@ -174,14 +167,12 @@ class miner:
 
         # Setup database
         bt.logging.info("loading database")
-        redis_password = get_redis_password(self.config.database.redis_password)
         self.database = aioredis.StrictRedis(
             host=self.config.database.host,
             port=self.config.database.port,
             db=self.config.database.index,
             socket_keepalive=True,
             socket_connect_timeout=300,
-            password=redis_password,
         )
         self.purge_ttl_path = get_purge_ttl_script_path(
             os.path.dirname(os.path.abspath(__file__))
