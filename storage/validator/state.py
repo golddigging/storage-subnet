@@ -82,7 +82,8 @@ def init_wandb(self, reinit=False):
 
 def reinit_wandb(self):
     """Reinitializes wandb, rolling over the run."""
-    self.wandb.finish()
+    if self.wandb is not None:
+        self.wandb.finish()
     init_wandb(self, reinit=True)
 
 
@@ -171,7 +172,7 @@ def load_state(self):
             "monitor_lookup", {uid: 0 for uid in self.metagraph.uids.tolist()}
         )
         if list(self.monitor_lookup.keys()) != self.metagraph.uids.tolist():
-            bt.logging.warning(
+            bt.logging.info(
                 "Monitor lookup keys do not match metagraph uids. Populating new monitor_lookup with zeros"
             )
             self.monitor_lookup = {
@@ -181,8 +182,8 @@ def load_state(self):
         bt.logging.info(f"Loaded monitor_lookup: {self.monitor_lookup}")
         # Check to ensure that the size of the neruon weights matches the metagraph size.
         if neuron_weights.shape != (self.metagraph.n,):
-            bt.logging.warning(
-                f"Neuron weights shape {neuron_weights.shape} does not match metagraph n {self.metagraph.n}"
+            bt.logging.info(
+                f"Neuron weights shape {neuron_weights.shape} does not match metagraph n {self.metagraph.n.item()}"
                 "Populating new moving_averaged_scores IDs with zeros"
             )
             self.moving_averaged_scores[: len(neuron_weights)] = neuron_weights.to(
@@ -205,6 +206,6 @@ def log_event(self, event):
         logger.log("EVENTS", "events", **event.__dict__)
 
     # Log the event to wandb
-    if not self.config.wandb.off:
+    if not self.config.wandb.off and self.wandb is not None:
         wandb_event = EventSchema.from_dict(event.__dict__)
         self.wandb.log(asdict(wandb_event))

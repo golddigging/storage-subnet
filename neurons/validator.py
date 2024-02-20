@@ -186,10 +186,7 @@ class neuron:
         # Init the event loop.
         self.loop = asyncio.get_event_loop()
 
-        # Init wandb.
-        if not self.config.wandb.off:
-            bt.logging.debug("loading wandb")
-            init_wandb(self)
+        self.wandb = None
 
         self.prev_step_block = get_current_block(self.subtensor)
         self.step = 0
@@ -254,6 +251,11 @@ class neuron:
 
                 self.loop.run_until_complete(run_forward())
 
+                # Init wandb.
+                if not self.config.wandb.off and self.wandb is not None:
+                    bt.logging.debug("loading wandb")
+                    init_wandb(self)
+
                 # Resync the network state
                 bt.logging.info("Checking if should checkpoint")
                 current_block = get_current_block(self.subtensor)
@@ -314,7 +316,8 @@ class neuron:
                 bt.logging.info(
                     "KeyboardInterrupt caught, gracefully closing the wandb run..."
                 )
-                self.wandb.finish()
+                if self.wandb is not None:
+                    self.wandb.finish()
 
         # After all we have to ensure subtensor connection is closed properly
         finally:
@@ -415,9 +418,9 @@ class neuron:
             self.stop_subscription_thread()
 
 
-def main():
+def run_validator():
     neuron().run()
 
 
 if __name__ == "__main__":
-    main()
+    run_validator()

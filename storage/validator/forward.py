@@ -104,7 +104,7 @@ async def forward(self):
         bt.logging.info("initiating TTL purge for expired keys")
         await purge_expired_ttl_keys(self.database)
 
-    if self.step % 360 == 0 and self.step > 0:
+    if self.step % 720 == 0 and self.step > 0:
         bt.logging.info("initiating compute stats")
         await compute_all_tiers(self.database)
 
@@ -116,7 +116,7 @@ async def forward(self):
         chunk_hash_map = await get_all_chunk_hashes(self.database)
 
         # Log the statistics, storage, and hashmap to wandb.
-        if not self.config.wandb.off:
+        if not self.config.wandb.off and self.wandb is not None:
             with open(self.config.neuron.miner_stats_path, "w") as file:
                 json.dump(stats, file)
 
