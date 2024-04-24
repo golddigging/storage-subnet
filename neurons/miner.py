@@ -211,7 +211,10 @@ class miner:
         bt.logging.info(
             f"Serving axon {self.axon} on network: {self.subtensor.chain_endpoint} with netuid: {self.config.netuid}"
         )
-        self.axon.serve(netuid=self.config.netuid, subtensor=self.subtensor)
+        try:
+            self.axon.serve(netuid=self.config.netuid, subtensor=self.subtensor)
+        except Exception as e:
+            bt.logging.error(f"Serve Axon Failed: {e}")
 
         # Start  starts the miner's axon, making it active on the network.
         bt.logging.info(f"Starting axon server on port: {self.config.axon.port}")
