@@ -47,6 +47,14 @@ def run(self):
         KeyboardInterrupt: If the miner is stopped by a manual interruption.
         Exception: For unforeseen errors during the miner's operation, which are logged for diagnosis.
     """
+
+    try:
+        data_directory = os.path.expanduser(self.config.database.directory)
+        if not os.path.exists(data_directory):
+            os.makedirs(data_directory)
+    except Exception as e:
+        bt.logging.error(f"Failed to create data directory {e}")
+
     block_handler_substrate = SubstrateInterface(
         ss58_format=bt.__ss58_format__,
         use_remote_preset=True,
