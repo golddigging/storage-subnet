@@ -184,7 +184,6 @@ class miner:
             init_wandb(self)
 
         self.config.axon.port = int(os.getenv("MINER_PORT"))
-        self.config.axon.external_ip = os.getenv("MINER_IP")
 
         # The axon handles request processing, allowing validators to send this process requests.
         self.axon = bt.axon(wallet=self.wallet, config=self.config)
@@ -207,7 +206,7 @@ class miner:
         )
 
         # Serve passes the axon information to the network + netuid we are hosting on.
-        # This will auto-update if the axon port of external ip have changed.
+        # This will auto-update if the axon port has changed.
         bt.logging.info(
             f"Serving axon {self.axon} on network: {self.subtensor.chain_endpoint} with netuid: {self.config.netuid}"
         )
@@ -219,6 +218,7 @@ class miner:
         # Start  starts the miner's axon, making it active on the network.
         bt.logging.info(f"Starting axon server on port: {self.config.axon.port}")
         self.axon.start()
+
 
         # Init the event loop.
         self.loop = asyncio.get_event_loop()
